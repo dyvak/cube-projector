@@ -1,10 +1,28 @@
 #include <algorithm>
 #include <stdlib.h>
+#include <assert.h>
 
 #include <QDebug>
 #include <QImage>
 #include <QImageReader>
 #include <QImageWriter>
+
+void convertToCubemap(QImage &input, QImage output[6]) {
+	assert(output[0].width() == output[0].height());
+
+	int size = output[0].width();
+	qDebug() << "image size: " << size;
+
+	for (size_t i = 0; i < 6; ++i) {
+		QRgb val = qRgb(120, 100, 0);
+
+		for (int row = 0; row < size; ++row) {
+			for (int col = 0; col < size; ++col) {
+				output[i].setPixel(row, col, input.pixel(row, col));
+			}
+		}
+	}
+}
 
 int main(int argc, char *argv[])
 {
@@ -29,7 +47,7 @@ int main(int argc, char *argv[])
 	}
 
 	// process
-
+	convertToCubemap(input, output);
 
 	// write
 	for (int i = 0; i < 6; ++i) {
