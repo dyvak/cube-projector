@@ -101,7 +101,7 @@ void convertToCubemap(QImage &input, QImage output[6]) {
 
 int main(int argc, char *argv[])
 {
-	if (argc != 4) {
+	if (argc < 4) {
 		qDebug() << "Wrong number of args";
 		return 1;
 	}
@@ -109,12 +109,15 @@ int main(int argc, char *argv[])
 	QString inputFilename = QString::fromLatin1(argv[1]);
 	QString outputFilename = QString::fromLatin1(argv[2]);
 	int size = atoi(argv[3]);
+	char *formatStr = argc > 4 ? argv[4] : nullptr;
+	int compression = argc > 5 ? atoi(argv[5]) : -1;
+	int quality = argc > 6 ? atoi(argv[6]) : -1;
 
 	// read
 	QImageReader reader{inputFilename};
 	QImage input = reader.read();
 	QImage::Format imageFormat = reader.imageFormat();
-	QByteArray format = QImageReader::imageFormat(inputFilename);
+	QByteArray format = formatStr ? QByteArray(formatStr) : QImageReader::imageFormat(inputFilename);
 
 	QImage output[6];
 	for (int i = 0; i < 6; ++i) {
@@ -128,8 +131,10 @@ int main(int argc, char *argv[])
 	for (int i = 0; i < 6; ++i) {
 		QImageWriter writer{outputFilename + QString::number(i) + "." + QString::fromLatin1(format).toLower()};
 		writer.setFormat(format);
-	//	writer.setQuality(50);
-	//	writer.setCompression(0);
+		if (quality != -1)
+			writer.setQuality(quality);
+		if (compression != -1)
+			writer.setCompression(compression);
 		writer.write(output[i]);
 	}
 
